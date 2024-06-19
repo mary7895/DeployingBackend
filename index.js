@@ -11,15 +11,11 @@ const auth = require("./middlewares/auth");
 const savedJobRoutes = require('./routes/savedJobsRoute');
 const appliedJobsRoute = require('./routes/appliedJobsRoute'); // Assuming this is the path to your route middleware
 
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    credentials: true, 
-    allowedHeaders:
-      "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-    methods: "GET, POST, PATCH, DELETE, OPTIONS", 
-  })
-);
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 app.use("/users", usersRoute);
