@@ -96,13 +96,16 @@ async function changeUserActivity(req, res) {
 
 async function login(req, res) {
   const { email, password } = req.body;
+  console.log("Login attempt:", email); // Add this line
   try {
     const user = await usersModel.findOne({ email });
     if (!user) {
+      console.log("Email not found"); // Add this line
       return res.status(401).json({ message: "Email Not Found" });
     }
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
+      console.log("Invalid password"); // Add this line
       return res.status(401).json({ message: "Invalid Email or Password" });
     }
     const token = jwt.sign(
@@ -115,9 +118,11 @@ async function login(req, res) {
     );
     res.status(200).json({ token });
   } catch (error) {
+    console.error("Login error:", error); // Add this line
     res.status(500).json({ message: "Internal Server Error" });
   }
 }
+
 
 module.exports = {
   register,
