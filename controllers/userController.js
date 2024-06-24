@@ -185,6 +185,7 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
+  console.log("Login attempt:", email); // Add this line
   try {
     console.log(`Attempting login for email: ${email}`);
     let user = await usersModel.findOne({ email });
@@ -225,6 +226,7 @@ const login = async (req, res) => {
     return  res.status(500).send('Server error');
   }
 };
+
 
 module.exports = {
   register,

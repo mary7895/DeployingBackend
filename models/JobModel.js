@@ -40,7 +40,7 @@
         //required: true
     },
     jobLocation: {
-        type: [{ State: String, government: String}]
+        type: { State: String, government: String}
         ,trim:true
     },
     JoblocationType: {
