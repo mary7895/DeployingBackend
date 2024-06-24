@@ -81,6 +81,18 @@ async function updateUser(req, res) {
     res.status(422).json({ message: err.message });
   }
 }
+async function updateUserr(req, res) {
+  const { id } = req.params;
+  const updatedData = req.body;
+  try {
+    const updatedUser = await usersModel.findByIdAndUpdate(id, updatedData, {
+      new: true,
+    });
+    res.status(200).json(updatedUser);
+  } catch (err) {
+    res.status(422).json({ message: err.message });
+  }
+}
 
 async function changeUserActivity(req, res) {
   const { id } = req.params;
