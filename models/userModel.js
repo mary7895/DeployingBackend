@@ -9,8 +9,7 @@ const desiredJobTypesEnum = [
   "None",
 ];
 const experienceLevelEnum = ["Fresh", "Junior", "Senior", "Expert"];
-const qualificationsEnum = ["Master's Degree", "Bachelor's Degree", "None"];
-
+const qualificationsEnum = ["Master's Degree", "Bachelors Degree", "None"];
 
 const userSchema = new mongoose.Schema({
   firstName: { type: String, required: true },
