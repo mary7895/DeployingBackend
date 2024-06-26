@@ -1,22 +1,70 @@
-const AppliedJob = require('../models/appliedJobsModel');
+const AppliedJob = require('../models/appliedJobsModel')
 
 
-exports.applyForJob = async (req, res) => {
+
+const applyForJob = async (req, res) => {
+  const { userId, jobId } = req.body;
+  console.log(`User ${userId} is applying for job ${jobId}`);
+
   try {
-    const { jobId, userId } = req.body;
-    const appliedJob = new AppliedJob({ jobId, userId });
+    const existingAppliedJob = await AppliedJob.findOne({ userId, jobId });
+    if (existingAppliedJob) {
+      console.log(`Job ${jobId} has already been applied for by user ${userId}`);
+      return res.status(400).json({ message: 'This Job is already saved by this user!!!!' });
+    }
+
+    const appliedJob = new AppliedJob({ userId, jobId });
     await appliedJob.save();
-    res.status(201).json({ message: 'You applied successfully ^_^ GOOD LUCK' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+
+    console.log(`Job application for job ${jobId} by user ${userId} saved successfully`);
+    res.status(201).json(appliedJob);
+  } catch (err) {
+    console.error('Error applying for job:', err);
+    res.status(500).json({ message: 'Server Error' });
   }
 };
 
 
-exports.getAllAppliedJobs = async (req, res) => {
+
+
+
+const getAllAppliedJobsByJobSeeker = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const { page = 1, limit = 6 } = req.query;
+
+    const limitInt = parseInt(limit, 10);
+    const pageInt = parseInt(page, 10);
+
+    console.log(`Fetching applied jobs for userId: ${userId}, page: ${pageInt}, limit: ${limitInt}`);
+
+    const AllAppliedJobsByJobSeeker = await AppliedJob.find({ userId })
+      .limit(limitInt)
+      .skip((pageInt - 1) * limitInt)
+      .populate('jobId');
+
+    const totalItems = await AppliedJob.countDocuments({ userId });
+
+    const response = {
+      totalItems,
+      totalPages: Math.ceil(totalItems / limitInt),
+      currentPage: pageInt,
+      data: AllAppliedJobsByJobSeeker
+    };
+
+    console.log('Response:', response);  
+
+    res.json(response);
+  } catch (error) {
+    console.error('Error fetching applied jobs:', error);  
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getAllAppliedJobs = async (req, res) => {
   try {
     const jobId = req.params.jobId;
-    const { page = 1, limit = 8 } = req.query;
+    const { page = 1, limit = 6 } = req.query;
 
     const limitInt = parseInt(limit, 10);
     const pageInt = parseInt(page, 10);
@@ -28,22 +76,30 @@ exports.getAllAppliedJobs = async (req, res) => {
 
     const totalItems = await AppliedJob.countDocuments({ jobId });
 
-    res.json({
+    const response = {
       totalItems,
       totalPages: Math.ceil(totalItems / limitInt),
       currentPage: pageInt,
       data: AllAppliedJobs
-    });
+    };
+
+    console.log(response);  
+
+    res.json(response);
   } catch (error) {
+    console.error(error);  
     res.status(500).json({ error: error.message });
   }
 };
-exports.deleteAppliedJob = async (req, res) => {
+const deleteAppliedJob = async (req, res) => {
   try {
     const applicationId = req.params.applicationId;
+
     await AppliedJob.findByIdAndDelete(applicationId);
     res.json({ message: 'This Applied Job deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+module.exports ={getAllAppliedJobs,deleteAppliedJob, applyForJob,getAllAppliedJobsByJobSeeker}
