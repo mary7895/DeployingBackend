@@ -70,7 +70,12 @@
         type:mongoose.Schema.Types.ObjectId,
          ref: 'Company', 
          required: true
-     }
+     },
+    additionalJobForm: {
+        type: Boolean,
+        default:false,
+        
+      }
 });
 
 const JobModel= mongoose.model('Job', JobSchema);
