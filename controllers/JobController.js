@@ -35,6 +35,28 @@ const getJobById = async (req, res) => {
     }
 }
 
+
+const GetJobById = async (req, res) => {
+    let { id } = req.params;
+    try {
+        let foundedJob = await JobModel.findById(id).populate('companyId', 'companyLogo companyName');
+        if (foundedJob) {
+            res.status(200).json({ 
+             
+                    ...foundedJob.toObject(),
+                    companyLogo: foundedJob.companyId.companyLogo,
+                    companyName: foundedJob.companyId.companyName
+               
+            });
+        } else {
+            res.status(404).json({ message: 'Job not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+
 const getJobsByCompanyName = async (req, res) => {
     let { companyName } = req.params;
     try {
@@ -193,4 +215,4 @@ try{
 
 
 
-module.exports = {postNewJob,getAllJobs,getJobById,updateJobById,deleteJobById,deleteAllJobs,getJobsByCompanyName,filterJobsByLocationState,getJobsBySalary,filterJobsByLocationGovernment,getCountByCompanyName,getCountByState,getAllCounts,filterSalaryBudget};
+module.exports = {postNewJob,getAllJobs,getJobById,updateJobById,deleteJobById,deleteAllJobs,getJobsByCompanyName,filterJobsByLocationState,getJobsBySalary,filterJobsByLocationGovernment,getCountByCompanyName,getCountByState,getAllCounts,filterSalaryBudget,GetJobById};
