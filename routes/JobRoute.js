@@ -4,6 +4,7 @@ const { postNewJob, getAllJobs, getJobById,getJobsBySalary, updateJobById, delet
 
 router.get('/get',getAllJobs);
 router.get('/get/:id',getJobById);
+router.get('/dona/:id',GetJobById);
 router.get('/getCompany/:companyName?',getJobsByCompanyName);
 router.get('/getJobsBySalay',getJobsBySalary);
 router.get('/FilterJobsByLoactionState/:State',filterJobsByLocationState);
