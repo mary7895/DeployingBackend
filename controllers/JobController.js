@@ -108,20 +108,13 @@ const getJobsBySalary = async (req, res) => {
 const postNewJob = async (req, res) => {
     const job = req.body;
     try {
-        
-        const company = await CompanyModel.findById(job.companyId);
-        if (!company) {
-            return res.status(404).json({ message: 'Company not found' });
-        }
-
-       
-        const newJob = new JobModel(job);
-        await newJob.save();
+        const newJob = await JobModel.create(job);
         res.status(201).json({ newJob });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-};
+}
+
 
 const updateJobById = async (req, res) => {
     let { id } = req.params;
