@@ -8,6 +8,10 @@ const JobSchema = new Schema({
     ref: "Company",
     required: true,
   },
+  companyName:{
+    type: String,
+    ref: 'Company'
+  },
   JobTitle: {
     type: String,
     required: [true, "Job Title is required"],
