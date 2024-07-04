@@ -3,27 +3,35 @@ const {companyModel} = require('../models/CompanyModel');
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const uploadOptions = require('../middlewares/uploadImage');
+const nodemailer = require('nodemailer');
+
+
+const smtpTransport = require('nodemailer-smtp-transport');
 
 const signup = async (req, res, next) => {
   const files = req.files;
   const company = req.body;
+  console.log('Received Data:', company); 
 
-  if (!files || !files.companyLogo || !files.companyImage) {
-    return res.status(400).json({ message: "There is no image in this request" });
-  }
+  // if (!files || !files.companyLogo || !files.companyImage) {
+  //   return res.status(400).json({ message: "There is no image in this request" });
+  // }
 
-  const logoFileName = files.companyLogo[0].filename;
-  const imageFileName = files.companyImage[0].filename;
+  // const logoFileName = files.companyLogo[0].filename;
+  // const imageFileName = files.companyImage[0].filename;
 
   try {
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
-    company.companyLogo = `${basePath}${logoFileName}`;
-    company.companyImage = `${basePath}${imageFileName}`;
+    // const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
+    // company.companyLogo = `${basePath}${logoFileName}`;
+    // company.companyImage = `${basePath}${imageFileName}`;
+    console.log(req.protocol)
+    console.log(req.get("host"))
 
-    const { companyName, companyIndustry, companyEmail, companyPassword, companyLocation } = req.body;
 
-    if (!companyName || !companyIndustry || !companyEmail || !companyPassword || !companyLocation || !companyLocation.state || !companyLocation.city) {
-      return res.status(400).json({ message: 'Email, password, name, industry, logo, image, state, and city are required' });
+    const { companyName, companyIndustry, companyEmail, companyPassword, companyLocation, companySize, foundedYear,phone,city,state} = req.body;
+
+    if (!companyName || !companyIndustry || !companyEmail || !companyPassword  ||  !companySize ||!foundedYear||!phone || !state || !city) {
+      return res.status(400).json({ message: 'Email, password, name, industry,  state, and city are required' });
     }
 
     const existingCompany = await companyModel.findOne({ companyEmail });
@@ -31,19 +39,24 @@ const signup = async (req, res, next) => {
       return res.status(409).json({ message: 'Company with this email already exists' });
     }
 
-    const hashedPassword = await bcrypt.hash(companyPassword, 10);
+    // const hashedPassword = await bcrypt.hash(companyPassword, 10);
 
     const newCompany = new companyModel({
       companyName,
       companyIndustry,
       companyEmail,
-      companyPassword: hashedPassword,
-      companyLogo: `${basePath}${logoFileName}`,
-      companyImage: `${basePath}${imageFileName}`,
-      companyLocation: {
-        state: companyLocation.state,
-        city: companyLocation.city
-      }
+      companySize,
+      foundedYear,
+      phone,
+      city,
+      state,
+      companyPassword,
+      // companyLogo: `${basePath}${logoFileName}`,
+      // companyImage: `${basePath}${imageFileName}`,
+      // companyLocation: {
+      //   state: companyLocation.state,
+      //   city: companyLocation.city
+      // }
     });
 
     await newCompany.save();
@@ -61,28 +74,171 @@ const signup = async (req, res, next) => {
 const companyLogin = async (req, res) => {
   let { companyEmail, companyPassword } = req.body;
 
+  console.log('Login attempt:', { companyEmail, companyPassword });
+
   if (!companyEmail || !companyPassword) {
     return res.status(400).json({ message: 'You must provide email and password' });
   }
 
   try {
     let company = await companyModel.findOne({ companyEmail });
+    console.log('Company found:', company);
+
     if (!company) {
+      console.log('Company not found:', companyEmail);
       return res.status(404).json({ message: 'Invalid email or password' });
     }
 
+    console.log('Stored hash:', company.companyPassword);
+
     let isValid = await bcrypt.compare(companyPassword, company.companyPassword);
+    console.log('Password valid:', isValid);
+
     if (!isValid) {
+      console.log('Invalid password for email:', companyEmail);
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    let token = jwt.sign({ data: { companyEmail: company.companyEmail, id: company._id } }, 'This_is_my_jwt');
+    let token = jwt.sign({ data: { companyEmail: company.companyEmail, id: company._id } }, 'This_is_my_jwt', { expiresIn: '1h' });
+    console.log('Token generated:', token);
 
-    res.status(200).json({ message: 'Success', token: token });
+    res.status(200).json({ 
+      message: 'Success', 
+      token: token,
+      company: {
+        companyEmail: company.companyEmail,
+        id: company._id,
+        companyName: company.companyName,
+        companyIndustry:company.companyIndustry,
+        companySize:company.companySize,
+        foundedYear:company.foundedYear,
+        phone:company.phone,
+        city:company.city,
+        state:company.state,
+        companyPassword:company.companyPassword
+       
+      }
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Server error. Please try again later.' });
+    console.error('Server error during login:', error);
+    res.status(500).json({ message: 'Server error. Please try again later.', error: error.message });
   }
 };
+
+
+
+
+const sendEmail = async (req, res, next) => {
+  const companyEmail = req.body.companyEmail;
+  console.log('Login attempt:', { companyEmail });
+  const existingCompany = await companyModel.findOne({ companyEmail });
+  if (!existingCompany) {
+    console.log('Company not found:', companyEmail);
+    return res.status(404).json({ message: 'Invalid email' });
+  }
+  const payload = {
+    companyEmail: existingCompany.companyEmail,
+  };
+  const expireTime = 300;
+  let token = jwt.sign({ data: { companyEmail: existingCompany.companyEmail, id: existingCompany._id } }, 'This_is_my_jwt');
+  console.log('Token generated:', token);
+  const transporter = nodemailer.createTransport(smtpTransport({
+    service: 'Gmail',
+    auth: {
+      user: 'safynazabdelraheem@gmail.com',
+      pass: 'mgxe xfke ptba atvr'
+    },
+    tls: {
+      rejectUnauthorized: false
+    }
+  }));
+  const resetUrl = `${'http://localhost:4200/rest'}?token=${token}`;
+  let emailDetails = {
+    from: "safynazabdelraheem@gmail.com",
+    to: companyEmail,
+    subject: 'Password Reset Request',
+    html: `<p>You requested a password reset. Please click the following link to reset your password:</p><a href="${resetUrl}">Reset Password</a>`
+  };
+  transporter.sendMail(emailDetails, async (error, data) => {
+    if (error) {
+      console.error('Error sending email:', error);
+      res.status(500).json({ message: 'Error sending email', error: error.message });
+    } else {
+      console.log('Email sent:', data.response);
+      await new companyTokenModel({ companyId: existingCompany._id, token }).save();
+      res.status(200).json({ message: 'Email sent successfully' });
+    }
+  });
+};
+
+const resetPassword = async (req, res, next) => {
+  try {
+    const token = req.query.token; // Extract token from query parameters
+    const { newPassword, confirmPassword } = req.body;
+
+    console.log('Received Data:', req.body);
+
+    if (!token || !newPassword || !confirmPassword) {
+      return res.status(400).json({ message: 'All fields must be provided' });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: 'New password and confirm password do not match' });
+    }
+
+    // Verify the token synchronously using async/await
+    const decodedToken = await jwt.verify(token, 'This_is_my_jwt');
+    console.log('Decoded Token:', decodedToken);
+
+    const companyEmail = decodedToken.data.companyEmail;
+    console.log('Company Email:', companyEmail);
+
+    const user = await companyModel.findOne({ companyEmail });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const encryptedPassword = await bcrypt.hash(newPassword, salt);
+    
+    // user.companyPassword = encryptedPassword;
+    // console.log("compare",user.companyPassword,encryptedPassword)
+    const updatedUser = await companyModel.findOneAndUpdate(
+      {_id:user._id},
+      {companyPassword:encryptedPassword},
+      {new:true}
+    )
+    await updatedUser.save();
+
+    console.log('Password updated successfully for email:', companyEmail);
+
+    res.status(200).json({ message: 'Password reset successfully' });
+  } catch (error) {
+    console.error('Error:', error);
+    if (error.name === 'TokenExpiredError') {
+      return res.status(400).json({ message: 'Reset link is expired' });
+    }
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -191,4 +347,7 @@ const countAllCompanies = async (req, res) => {
 
 
 
-module.exports = {signup, getCompanyById,getAllCompanies, companyLogin,updateCompanyData,deleteCompanyData,getCompaniesByCity,countCompaniesInCity,countAllCompanies};
+
+
+
+module.exports = {signup, getCompanyById,getAllCompanies, companyLogin,updateCompanyData,deleteCompanyData,getCompaniesByCity,countCompaniesInCity,countAllCompanies,sendEmail,resetPassword};

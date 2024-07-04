@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { postNewJob, getAllJobs, getJobById,getJobsBySalary, updateJobById, deleteJobById, deleteAllJobs, getJobsByCompanyName, filterJobsByLocationState,filterJobsByLocationGovernment,getAllCounts, getCountByState,getCountByCompanyName,filterSalaryBudget}= require('../controllers/JobController');
+const { filterSalaryBudget,postNewJob, getAllJobs, getJobById,getJobsBySalary, updateJobById, deleteJobById, deleteAllJobs, getJobsByCompanyName, filterJobsByLocationState,filterJobsByLocationGovernment,getAllCounts, getCountByState,getCountByCompanyName,getJobsByCompanyId}= require('../controllers/JobController');
 
 router.get('/get',getAllJobs);
 router.get('/get/:id',getJobById);
 router.get('/getCompany/:companyName?',getJobsByCompanyName);
+router.get('/getJobsByCompanyId/:companyId',getJobsByCompanyId);
 router.get('/getJobsBySalay',getJobsBySalary);
 router.get('/FilterJobsByLoactionState/:State',filterJobsByLocationState);
 router.get('/countAll',getAllCounts);

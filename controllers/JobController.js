@@ -1,4 +1,5 @@
 const JobModel = require('../models/JobModel');
+const company =require('../models/CompanyModel')
 
 const getAllJobs = async (req, res) => {
     try {
@@ -34,6 +35,26 @@ const getJobById = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
+const getJobsByCompanyId = async (req, res) => {
+    const { companyId } = req.params;
+    try {
+        const jobs = await JobModel.find({ companyId }).populate('companyId', 'companyLogo companyName');
+        if (jobs.length > 0) {
+            res.status(200).json({
+                jobs: jobs.map(job => ({
+                    ...job.toObject(),
+                    companyLogo: job.companyId.companyLogo,
+                    companyName: job.companyId.companyName
+                }))
+            });
+        } else {
+            res.status(404).json({ message: 'No jobs found for the specified company ID' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 
 const getJobsByCompanyName = async (req, res) => {
     let { companyName } = req.params;
@@ -67,12 +88,20 @@ const getJobsBySalary = async (req, res) => {
 const postNewJob = async (req, res) => {
     const job = req.body;
     try {
-        const newJob = await JobModel.create(job);
+        
+        const company = await CompanyModel.findById(job.companyId);
+        if (!company) {
+            return res.status(404).json({ message: 'Company not found' });
+        }
+
+       
+        const newJob = new JobModel(job);
+        await newJob.save();
         res.status(201).json({ newJob });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-}
+};
 
 const updateJobById = async (req, res) => {
     let { id } = req.params;
@@ -193,4 +222,19 @@ try{
 
 
 
-module.exports = {postNewJob,getAllJobs,getJobById,updateJobById,deleteJobById,deleteAllJobs,getJobsByCompanyName,filterJobsByLocationState,getJobsBySalary,filterJobsByLocationGovernment,getCountByCompanyName,getCountByState,getAllCounts,filterSalaryBudget};
+//module.exports = {postNewJob,getAllJobs,getJobById,updateJobById,deleteJobById,deleteAllJobs,getJobsByCompanyName,filterJobsByLocationState,getJobsBySalary,filterJobsByLocationGovernment,getCountByCompanyName,getCountByState,getAllCounts,filterSalaryBudget};
+// const filterSalaryBudget= async (req, res) => {
+//     const { minBudget, maxBudget } = req.body;
+//     try {
+//       const filterdSalary = await Job.find({
+//         salary: { $gte: minBudget,$lte: maxBudget }
+//       });
+//       res.status(200).send(filterdSalary);
+//     } catch (error) {
+//       res.status(500).send(error);
+//     }
+//   };
+
+
+
+module.exports = {filterSalaryBudget,postNewJob,getAllJobs,getJobById,updateJobById,deleteJobById,deleteAllJobs,getJobsByCompanyName,filterJobsByLocationState,getJobsBySalary,filterJobsByLocationGovernment,getCountByCompanyName,getCountByState,getAllCounts,getJobsByCompanyId};

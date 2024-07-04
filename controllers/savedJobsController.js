@@ -44,3 +44,15 @@ exports.saveJob = async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
+
+exports.countSavedJobsByUser = async (req, res) => {
+    const userId = req.params.userId;
+
+    try {
+        const count = await SavedJob.countSavedJobsByUser(userId);
+        res.json({ count });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};

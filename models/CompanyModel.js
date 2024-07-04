@@ -24,6 +24,13 @@ const companySchema = new mongoose.Schema({
     companyLogo: {
         type: String
     },
+    foundedYear: {
+        type: Number,
+        required: true,
+      },
+      phone: {
+        type: String,
+      },
     createdAt: {
         type: Date,
         default: Date.now
@@ -32,22 +39,33 @@ const companySchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    companyLocation: {
-        state: String,
-        city: String
+    // companyLocation: {
+    //     state: String,
+    //     city: String
+    // },
+    state: {
+        type: String
+    },
+    city: {
+        type: String
     },
     companyImage: {
         type: String
-    }
+    },
+    companySize: {
+        type: String,
+        // required: true,
+      }
 }, { timestamps: true });
+
 
 companySchema.pre('save', async function (next) {
     if (this.isModified('companyPassword')) {
-        const salt = await bcrypt.genSalt(10);
-        this.companyPassword = await bcrypt.hash(this.companyPassword, salt);
+      const salt = await bcrypt.genSalt(10);
+      this.companyPassword = await bcrypt.hash(this.companyPassword, salt);
     }
     next();
-});
+  });
 
 const companyModel = mongoose.model('Company', companySchema);
 module.exports = {companyModel};
