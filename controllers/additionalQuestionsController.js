@@ -1,16 +1,5 @@
 const mongoose = require('mongoose');
 const { ObjectId } = require('mongodb');
-const Schema = mongoose.Schema;
-
-const additionalQuestionsSchema = new Schema({
-  jobId: { type: Schema.Types.ObjectId, ref: "JobModel", required: true },
-  FirstQuestion: { type: String },
-  SecondQuestion: { type: String },
-  ThirdQuestion: { type: String },
-  FourthQuestion: { type: String }
-});
-
-const additionalQuestionsModel = mongoose.model("additionalQuestions", additionalQuestionsSchema);
 
 const addJobForm = (req, res) => {
   const dataJobForm = req.body;
