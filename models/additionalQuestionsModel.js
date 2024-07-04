@@ -14,5 +14,5 @@ const additionalQuestionsSchema = new Schema({
   ,
 });
 
-module.exports = mongoose.model('AdditionalQuestions', additionalQuestionsSchema);
+module.exports = mongoose.model('additionalQuestions', additionalQuestionsSchema);
 

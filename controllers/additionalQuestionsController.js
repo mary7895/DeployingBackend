@@ -7,7 +7,7 @@ const addJobForm = (req, res) => {
   const dataJobForm = req.body;
     
   additionalQuestionsModel
-    .create(dataJobForm)
+.create(dataJobForm)
     .then((savedJobForm) => {
       res.status(201).json(savedJobForm);
     })
