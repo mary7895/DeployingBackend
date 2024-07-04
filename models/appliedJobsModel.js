@@ -38,5 +38,7 @@ AppliedJobsSchema.statics.countAppliedJobsByUser = async function(userId) {
   }
 };
 
+
+
 const AppliedJob = mongoose.model("AppliedJob", AppliedJobsSchema);
 module.exports = AppliedJob;

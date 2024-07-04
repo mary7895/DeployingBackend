@@ -17,9 +17,7 @@ const {
 const { auth } = require('../middlewares/auth');
 
 // Routes
-router.post('/signup',
-  //  upload.fields([{ name: 'companyLogo', maxCount: 1 }, { name: 'companyImage', maxCount: 1 }]),
-    signup);
+router.post('/signup',  signup);
 router.get('/:id', getCompanyById);
 router.get('/', getAllCompanies);
 router.post('/login', companyLogin);

@@ -4,6 +4,7 @@ const { filterSalaryBudget,postNewJob, getAllJobs, getJobById,getJobsBySalary, u
 
 router.get('/get',getAllJobs);
 router.get('/get/:id',getJobById);
+router.get('/dona/:id',GetJobById);
 router.get('/getCompany/:companyName?',getJobsByCompanyName);
 router.get('/getJobsByCompanyId/:companyId',getJobsByCompanyId);
 router.get('/getJobsBySalay',getJobsBySalary);

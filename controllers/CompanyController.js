@@ -36,7 +36,9 @@ const signup = async (req, res, next) => {
 
     const existingCompany = await companyModel.findOne({ companyEmail });
     if (existingCompany) {
-      return res.status(409).json({ message: 'Company with this email already exists' });
+      return res
+        .status(409)
+        .json({ message: "Company with this email already exists" });
     }
 
     // const hashedPassword = await bcrypt.hash(companyPassword, 10);
@@ -61,15 +63,15 @@ const signup = async (req, res, next) => {
 
     await newCompany.save();
 
-    return res.status(201).json({ message: 'Company created successfully', company: newCompany });
+    return res
+      .status(201)
+      .json({ message: "Company created successfully", company: newCompany });
   } catch (error) {
-    return res.status(500).json({ message: 'Error creating company', error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Error creating company", error: error.message });
   }
 };
-
-
-
-
 
 const companyLogin = async (req, res) => {
   let { companyEmail, companyPassword } = req.body;
@@ -77,7 +79,9 @@ const companyLogin = async (req, res) => {
   console.log('Login attempt:', { companyEmail, companyPassword });
 
   if (!companyEmail || !companyPassword) {
-    return res.status(400).json({ message: 'You must provide email and password' });
+    return res
+      .status(400)
+      .json({ message: "You must provide email and password" });
   }
 
   try {
@@ -256,62 +260,61 @@ const getCompanyById = async (req, res) => {
   }
 };
 
-
-const getAllCompanies= async(req,res)=>{
-try{
-  let allCompany=await companyModel.find();
-  res.status(200).json({message:"succes",data:allCompany})
-}catch(err){
-  res.status(500).json({message:err})
-}
-
-}
-
-
+const getAllCompanies = async (req, res) => {
+  try {
+    let allCompany = await companyModel.find();
+    res.status(200).json({ message: "succes", data: allCompany });
+  } catch (err) {
+    res.status(500).json({ message: err });
+  }
+};
 
 const updateCompanyData = async (req, res) => {
   let { id } = req.params;
   let { name } = req.body;
 
   try {
-    let updatedData = await companyModel.findByIdAndUpdate(id, { companyName: name }, { new: true });
-    res.status(200).json({ "message": `company data updated Sucessfully`, data: updatedData });
+    let updatedData = await companyModel.findByIdAndUpdate(
+      id,
+      { companyName: name },
+      { new: true }
+    );
+    res
+      .status(200)
+      .json({ message: `company data updated Sucessfully`, data: updatedData });
   } catch (error) {
-    res.status(422).json({ 'message': error.message });
+    res.status(422).json({ message: error.message });
   }
-}
+};
 
-
-const deleteCompanyData= async(req,res)=>{
-  let {id}=req.params;
-  try{
+const deleteCompanyData = async (req, res) => {
+  let { id } = req.params;
+  try {
     const deleteCompanyAccount = await companyModel.findByIdAndDelete(id);
-    if(deleteCompanyAccount){
-      res.status(200).json({"message":`account deleted Successfully`});
-    }else{
-      res.status(404).json({"message":`account not found `})
+    if (deleteCompanyAccount) {
+      res.status(200).json({ message: `account deleted Successfully` });
+    } else {
+      res.status(404).json({ message: `account not found ` });
     }
-  
-  }catch(error){
-    res.status(422).json({ "message": error.message });
+  } catch (error) {
+    res.status(422).json({ message: error.message });
   }
-}
-
+};
 
 // search by city
-const getCompaniesByCity = async (req,res)=>{
-  let {city}=req.params;
-  try{
-    let companies = await companyModel.find({"companyLocation.city":city});
-    if(companies.length>0){
-      res.status(200).json({message:"success",data:companies});
-    }else{
+const getCompaniesByCity = async (req, res) => {
+  let { city } = req.params;
+  try {
+    let companies = await companyModel.find({ "companyLocation.city": city });
+    if (companies.length > 0) {
+      res.status(200).json({ message: "success", data: companies });
+    } else {
       res.status(404).json({ message: `No companies found in ${city}` });
     }
-  }catch(error){
+  } catch (error) {
     res.status(500).json({ message: `Server error: ${error.message}` });
   }
-}
+};
 
 // count by city
 const countCompaniesInCity = async (req, res) => {
@@ -319,10 +322,12 @@ const countCompaniesInCity = async (req, res) => {
 
   try {
     if (!city) {
-      return res.status(400).json({ message: 'City parameter is required' });
+      return res.status(400).json({ message: "City parameter is required" });
     }
 
-    let count = await companyModel.countDocuments({ "companyLocation.city": city });
+    let count = await companyModel.countDocuments({
+      "companyLocation.city": city,
+    });
     res.status(200).json({ message: "success", count: count });
   } catch (error) {
     res.status(500).json({ message: `Server error: ${error.message}` });
