@@ -18,7 +18,7 @@ const JobSchema = new Schema({
     required: true,
   },
   JobSubCategory: {
-    type: String,
+    type: [String],
     default: "other",
   },
   description: {
