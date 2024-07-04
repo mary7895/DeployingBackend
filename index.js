@@ -10,6 +10,7 @@ const additionalQuestionsRoute = require("./routes/additionalQuestionsRoutes");
 const auth = require("./middlewares/auth");
 const savedJobRoutes = require("./routes/savedJobsRoute");
 const appliedJobsRoute = require("./routes/appliedJobsRoute"); 
+const upload =require("./routes/upload")
 
 app.use(
   cors({

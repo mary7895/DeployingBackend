@@ -1,6 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
+const multer = require('multer');
+//const upload =require("./upload")
+const path = require("path");
+
+
+
+
 
 router.post("/register", userController.register);
 router.get("/", userController.getAllUsers);
