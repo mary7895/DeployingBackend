@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { filterSalaryBudget,postNewJob, getAllJobs, getJobById,getJobsBySalary, updateJobById, deleteJobById, deleteAllJobs, getJobsByCompanyName, filterJobsByLocationState,filterJobsByLocationGovernment,getAllCounts, getCountByState,getCountByCompanyName,getJobsByCompanyId}= require('../controllers/JobController');
+const { filterSalaryBudget,postNewJob, getAllJobs, getJobById,getJobsBySalary, updateJobById, deleteJobById, deleteAllJobs, getJobsByCompanyName, filterJobsByLocationState,filterJobsByLocationGovernment,getAllCounts, getCountByState,getCountByCompanyName,getJobsByCompanyId,foundedJobByIdDona}= require('../controllers/JobController');
 
 router.get('/get',getAllJobs);
 router.get('/get/:id',getJobById);
-//router.get('/dona/:id',GetJobById);
+router.get('/foundedJob/:id',foundedJobByIdDona);
 router.get('/getCompany/:companyName?',getJobsByCompanyName);
 router.get('/getJobsByCompanyId/:companyId',getJobsByCompanyId);
 router.get('/getJobsBySalay',getJobsBySalary);
@@ -18,6 +18,7 @@ router.get('/FilterJobsByLoactionGovernment/:government',filterJobsByLocationGov
 router.patch('/update/:id',updateJobById);
 router.delete('/delete/:id',deleteJobById);
 router.delete('/delete',deleteAllJobs);
+
 
 
 module.exports = router;
