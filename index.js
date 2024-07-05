@@ -18,7 +18,7 @@ app.use(
     credentials: true,
     allowedHeaders:
       "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-    methods: "GET, POST, PATCH, DELETE, OPTIONS",
+    methods: "GET, POST, PATCH, DELETE, OPTIONS, PUT",
   })
 );
 
